@@ -416,7 +416,7 @@ def build_html(article: str, toc: list[dict], meta: dict) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7f3ed">
   <title>置身钉内</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/style.css?v=20260608-2">
 </head>
 <body>
   <div class="progress" aria-hidden="true"><span></span></div>
@@ -455,7 +455,7 @@ def build_html(article: str, toc: list[dict], meta: dict) -> str:
     <button type="button" class="close" aria-label="关闭">关闭</button>
     <img alt="">
   </dialog>
-  <script src="assets/main.js"></script>
+  <script src="assets/main.js?v=20260608-2"></script>
 </body>
 </html>
 """
