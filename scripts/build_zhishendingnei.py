@@ -409,33 +409,32 @@ def build_html(article: str, toc: list[dict], meta: dict) -> str:
         )
         for item in toc
     )
-    meta_json = html.escape(json.dumps(meta, ensure_ascii=False))
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#12100e">
+  <meta name="theme-color" content="#f7f3ed">
   <title>置身钉内</title>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <div class="progress" aria-hidden="true"><span></span></div>
+  <button class="reader-button" type="button" id="readerToggle" aria-label="阅读设置" aria-expanded="false" aria-controls="readerPanel">Aa</button>
+  <section class="reader-panel" id="readerPanel" aria-label="阅读设置" hidden>
+    <label>字号 <input id="fontSizeControl" type="range" min="17" max="23" value="19"></label>
+    <label>行距 <input id="lineHeightControl" type="range" min="1.65" max="2.15" step="0.05" value="1.9"></label>
+    <div class="reader-actions">
+      <button type="button" data-theme="light">浅色</button>
+      <button type="button" data-theme="warm">暖纸</button>
+      <button type="button" data-theme="dark">深色</button>
+    </div>
+  </section>
   <header class="hero">
-    <nav class="topbar" aria-label="站点导航">
-      <a href="../../index.html">Noctiluca Pages</a>
-      <a href="#toc">目录</a>
-      <a href="#article">正文</a>
-    </nav>
     <div class="hero-inner">
-      <p class="eyebrow">A native web edition · {meta["pages"]} pages rebuilt for reading</p>
       <h1>置身钉内</h1>
-      <p class="dek">从 PDF 重新编排为适合网页和手机阅读的长文版本。正文按原文顺序保留，图片从原 PDF 中抽取并嵌入，去除硬分页、页眉页脚和 PDF 断行。</p>
-      <div class="stats" data-meta="{meta_json}">
-        <span>{meta["pages"]} 页</span>
-        <span>{meta["kept_images"]} 张插图</span>
-        <span>{meta["text_chars"]:,} 字</span>
-      </div>
+      <p class="dek">楔：钉钉是一只雨燕</p>
+      <p class="meta">2026-06-04</p>
     </div>
   </header>
 
@@ -450,12 +449,6 @@ def build_html(article: str, toc: list[dict], meta: dict) -> str:
       {article}
     </article>
   </main>
-
-  <div class="mobile-nav" aria-label="移动端导航">
-    <a href="#toc">目录</a>
-    <a href="#article">正文</a>
-    <button type="button" id="themeToggle">明暗</button>
-  </div>
 
   <dialog class="lightbox" id="lightbox">
     <button type="button" class="close" aria-label="关闭">关闭</button>
