@@ -67,18 +67,91 @@ requestAnimationFrame(() => {
 
 const lightbox = document.querySelector("#lightbox");
 const lightboxImg = lightbox?.querySelector("img");
+let zoomState = { scale: 1, fitScale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+
+function applyZoom() {
+  if (!lightboxImg) return;
+  lightboxImg.style.setProperty("--zoom", zoomState.scale);
+  lightboxImg.style.transform = `translate(calc(-50% + ${zoomState.x}px), calc(-50% + ${zoomState.y}px)) scale(${zoomState.scale})`;
+}
+
+function fitImageToViewport() {
+  if (!lightboxImg) return;
+  const naturalWidth = lightboxImg.naturalWidth || 1;
+  const naturalHeight = lightboxImg.naturalHeight || 1;
+  const fitX = (window.innerWidth * 0.94) / naturalWidth;
+  const fitY = (window.innerHeight * 0.86) / naturalHeight;
+  zoomState.fitScale = Math.min(1, fitX, fitY);
+  zoomState.scale = zoomState.fitScale;
+  zoomState.x = 0;
+  zoomState.y = 0;
+  applyZoom();
+}
+
+function setZoom(nextScale) {
+  zoomState.scale = Math.max(zoomState.fitScale, Math.min(6, nextScale));
+  if (zoomState.scale === zoomState.fitScale) {
+    zoomState.x = 0;
+    zoomState.y = 0;
+  }
+  applyZoom();
+}
+
 document.querySelectorAll(".image-button img").forEach((img) => {
   img.addEventListener("click", () => {
     if (!lightbox || !lightboxImg) return;
     lightboxImg.src = img.currentSrc || img.src;
     lightboxImg.alt = img.alt;
     lightbox.showModal();
+    if (lightboxImg.complete) fitImageToViewport();
+    else lightboxImg.addEventListener("load", fitImageToViewport, { once: true });
   });
 });
 
 lightbox?.querySelector(".close")?.addEventListener("click", () => lightbox.close());
 lightbox?.addEventListener("click", (event) => {
   if (event.target === lightbox) lightbox.close();
+});
+lightbox?.addEventListener("wheel", (event) => {
+  event.preventDefault();
+  const factor = event.deltaY < 0 ? 1.14 : 0.88;
+  setZoom(zoomState.scale * factor);
+}, { passive: false });
+lightbox?.addEventListener("dblclick", () => {
+  setZoom(zoomState.scale <= zoomState.fitScale * 1.1 ? Math.max(1, zoomState.fitScale * 2.2) : zoomState.fitScale);
+});
+lightbox?.querySelectorAll("[data-zoom]").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const action = button.dataset.zoom;
+    if (action === "in") setZoom(zoomState.scale * 1.25);
+    if (action === "out") setZoom(zoomState.scale / 1.25);
+    if (action === "reset") setZoom(zoomState.fitScale);
+  });
+});
+lightboxImg?.addEventListener("pointerdown", (event) => {
+  zoomState.dragging = true;
+  zoomState.startX = event.clientX;
+  zoomState.startY = event.clientY;
+  zoomState.originX = zoomState.x;
+  zoomState.originY = zoomState.y;
+  lightboxImg.setPointerCapture(event.pointerId);
+  lightboxImg.classList.add("dragging");
+});
+lightboxImg?.addEventListener("pointermove", (event) => {
+  if (!zoomState.dragging) return;
+  zoomState.x = zoomState.originX + event.clientX - zoomState.startX;
+  zoomState.y = zoomState.originY + event.clientY - zoomState.startY;
+  applyZoom();
+});
+lightboxImg?.addEventListener("pointerup", (event) => {
+  zoomState.dragging = false;
+  lightboxImg.releasePointerCapture(event.pointerId);
+  lightboxImg.classList.remove("dragging");
+});
+lightboxImg?.addEventListener("pointercancel", () => {
+  zoomState.dragging = false;
+  lightboxImg.classList.remove("dragging");
 });
 
 const readerToggle = document.querySelector("#readerToggle");
