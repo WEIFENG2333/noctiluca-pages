@@ -425,6 +425,7 @@ def build_html(article: str, toc: list[dict], meta: dict) -> str:
     <label>字号 <input id="fontSizeControl" type="range" min="17" max="23" value="19"></label>
     <label>行距 <input id="lineHeightControl" type="range" min="1.65" max="2.15" step="0.05" value="1.9"></label>
     <div class="reader-actions">
+      <button type="button" data-theme="system">系统</button>
       <button type="button" data-theme="light">浅色</button>
       <button type="button" data-theme="warm">暖纸</button>
       <button type="button" data-theme="dark">深色</button>

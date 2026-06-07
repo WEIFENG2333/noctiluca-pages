@@ -96,14 +96,19 @@ function applyReaderSettings(settings) {
     document.documentElement.style.setProperty("--reader-line-height", settings.lineHeight);
     if (lineHeightControl) lineHeightControl.value = settings.lineHeight;
   }
-  document.body.classList.remove("theme-warm", "theme-dark");
+  document.body.classList.remove("theme-light", "theme-warm", "theme-dark");
+  if (settings.theme === "light") document.body.classList.add("theme-light");
   if (settings.theme === "warm") document.body.classList.add("theme-warm");
   if (settings.theme === "dark") document.body.classList.add("theme-dark");
 }
 
 function saveReaderSetting(key, value) {
   const next = { ...savedSettings, ...JSON.parse(localStorage.getItem("reader-settings") || "{}") };
-  next[key] = value;
+  if (key === "theme" && value === "system") {
+    delete next.theme;
+  } else {
+    next[key] = value;
+  }
   localStorage.setItem("reader-settings", JSON.stringify(next));
   applyReaderSettings(next);
 }
